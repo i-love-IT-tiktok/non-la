@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<title>Nón Lá Phiêu Lưu</title>
+<title>Nón Lá Phiêu Lưu - Nói để nhảy</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -38,26 +38,50 @@
   }
   #wordBox {
     position: absolute;
-    top: 20px;
+    top: 15px;
     left: 50%;
     transform: translateX(-50%);
     background: rgba(139, 69, 19, 0.92);
     color: #FFD700;
-    padding: 12px 30px;
+    padding: 10px 28px;
     border-radius: 30px;
     font-size: 26px;
     font-weight: bold;
     border: 3px solid #FFD700;
     box-shadow: 0 4px 12px rgba(0,0,0,0.4);
     text-align: center;
-    min-width: 200px;
+    min-width: 220px;
     letter-spacing: 2px;
-    transition: all 0.2s;
+    transition: all 0.25s;
+    white-space: nowrap;
   }
   #wordBox.correct {
     background: rgba(34, 139, 34, 0.95);
     color: white;
     transform: translateX(-50%) scale(1.15);
+  }
+  #micIndicator {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    transition: all 0.2s;
+  }
+  #micIndicator.listening {
+    background: #FF4444;
+    animation: pulse 1s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,68,68,0.7); }
+    50% { box-shadow: 0 0 0 12px rgba(255,68,68,0); }
   }
   #statusBar {
     display: flex;
@@ -71,40 +95,36 @@
     color: #8B4513;
   }
   #score, #best { background: rgba(255,255,255,0.7); padding: 4px 14px; border-radius: 20px; }
-  #inputArea {
+  #heard {
     margin-top: 12px;
-    display: flex;
-    gap: 10px;
     width: 800px;
     max-width: 95vw;
-    justify-content: center;
-  }
-  #wordInput {
-    padding: 12px 20px;
+    min-height: 46px;
+    background: rgba(255,255,255,0.8);
+    border: 3px dashed #8B4513;
+    border-radius: 25px;
+    padding: 10px 20px;
     font-size: 20px;
-    border: 3px solid #8B4513;
-    border-radius: 30px;
-    outline: none;
-    text-align: center;
-    width: 300px;
     font-weight: bold;
     color: #8B4513;
-    text-transform: uppercase;
-    letter-spacing: 2px;
+    text-align: center;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
-  #wordInput:focus { border-color: #FFD700; box-shadow: 0 0 15px #FFD700; }
-  #wordInput:disabled { background: #eee; }
+  #heard.matched { background: rgba(144,238,144,0.9); border-color: #228B22; color: #004d00; }
   #hint {
     margin-top: 10px;
     color: #555;
-    font-size: 15px;
+    font-size: 14px;
     text-align: center;
     font-style: italic;
   }
   #overlay {
     position: absolute;
     inset: 0;
-    background: rgba(0,0,0,0.75);
+    background: rgba(0,0,0,0.78);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -114,8 +134,8 @@
     padding: 20px;
     z-index: 10;
   }
-  #overlay h2 { font-size: 38px; margin-bottom: 15px; color: #FFD700; }
-  #overlay p { font-size: 18px; margin-bottom: 20px; line-height: 1.6; max-width: 500px; }
+  #overlay h2 { font-size: 36px; margin-bottom: 15px; color: #FFD700; }
+  #overlay p { font-size: 17px; margin-bottom: 20px; line-height: 1.7; max-width: 550px; }
   #overlay button {
     padding: 14px 40px;
     font-size: 22px;
@@ -129,24 +149,27 @@
   }
   #overlay button:hover { transform: scale(1.1); }
   #overlay.hidden { display: none; }
+  .warning { color: #FF6B6B; font-size: 14px; margin-top: 10px; }
 </style>
 </head>
 <body>
 
-<h1>🎋 Nón Lá Phiêu Lưu 🎋</h1>
+<h1>🎋 Nón Lá Phiêu Lưu - Nói để nhảy 🎋</h1>
 
 <div id="gameContainer">
   <canvas id="game" width="800" height="300"></canvas>
   <div id="wordBox">NÓN LÁ</div>
+  <div id="micIndicator">🎤</div>
   <div id="overlay">
-    <h2>🎮 Cách chơi</h2>
+    <h2>🎤 Cách chơi</h2>
     <p>
-      Chiếc nón lá Việt Nam đang bay trên đường!<br>
-      Khi gặp chướng ngại vật, hãy <b>GÕ ĐÚNG TỪ</b> hiển thị trên màn hình<br>
-      rồi nhấn <b>Enter</b> để nón lá nhảy lên!<br><br>
-      <small>Gõ đúng từ = nhảy + điểm | Gõ sai = thua</small>
+      Chiếc nón lá đang bay trên đường làng!<br>
+      Khi chướng ngại vật xuất hiện, hãy <b>NÓI TO TỪ</b> hiển thị trên màn hình.<br>
+      Nói đúng → nón lá nhảy lên!<br><br>
+      <small>⚠️ Cần dùng <b>Chrome/Edge</b> và cho phép quyền micro</small>
     </p>
     <button id="startBtn">BẮT ĐẦU</button>
+    <div class="warning" id="supportWarn"></div>
   </div>
 </div>
 
@@ -155,27 +178,26 @@
   <div id="best">👑 Kỷ lục: 0</div>
 </div>
 
-<div id="inputArea">
-  <input type="text" id="wordInput" placeholder="Gõ từ ở đây..." disabled autocomplete="off">
-</div>
+<div id="heard">🎤 Nhấn BẮT ĐẦU và nói từ hiển thị...</div>
 
-<div id="hint">💡 Gõ đúng từ đề xuất + Enter để nhảy qua chướng ngại vật!</div>
+<div id="hint">💡 Nói to, rõ từ trên màn hình để nón lá nhảy qua chướng ngại vật!</div>
 
 <script>
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 const wordBox = document.getElementById('wordBox');
-const wordInput = document.getElementById('wordInput');
+const heardEl = document.getElementById('heard');
+const micIndicator = document.getElementById('micIndicator');
 const overlay = document.getElementById('overlay');
 const startBtn = document.getElementById('startBtn');
 const scoreEl = document.getElementById('score');
 const bestEl = document.getElementById('best');
+const supportWarn = document.getElementById('supportWarn');
 
 const GROUND_Y = 240;
 const GRAVITY = 0.8;
 const JUMP_FORCE = -16;
 
-// Danh sách từ tiếng Việt (chủ đề quê hương, đất nước)
 const WORDS = [
   'NÓN LÁ', 'QUÊ HƯƠNG', 'VIỆT NAM', 'ĐỒNG QUÊ', 'LÚA VÀNG',
   'CON TRÂU', 'CÁNH DIỀU', 'ÁO DÀI', 'PHỞ BÒ', 'BÁNH MÌ',
@@ -183,7 +205,7 @@ const WORDS = [
   'NGỌN TRE', 'CON ĐÒ', 'MÁI ĐÌNH', 'CÂY CẦU', 'MƯA PHÙN'
 ];
 
-let gameState = 'menu'; // menu, playing, over
+let gameState = 'menu';
 let score = 0;
 let best = parseInt(localStorage.getItem('nonla_best') || '0');
 let currentWord = '';
@@ -192,33 +214,170 @@ let frameCount = 0;
 let obstacles = [];
 let clouds = [];
 let groundOffset = 0;
-let nhay = false; // đang nhảy
-let readyToJump = false; // đã gõ đúng, chờ nhảy
 let particles = [];
+let recognition = null;
+let isListening = false;
+let lastHeard = '';
 
 bestEl.textContent = '👑 Kỷ lục: ' + best;
 
 const player = {
-  x: 100,
-  y: GROUND_Y - 70,
-  w: 70,
-  h: 70,
-  vy: 0,
-  rotation: 0
+  x: 100, y: GROUND_Y - 70, w: 70, h: 70,
+  vy: 0, rotation: 0
 };
 
+// ============ SPEECH RECOGNITION ============
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+function initRecognition() {
+  if (!SpeechRecognition) {
+    supportWarn.textContent = '⚠️ Trình duyệt không hỗ trợ nhận dạng giọng nói. Dùng Chrome/Edge nhé!';
+    return null;
+  }
+  const rec = new SpeechRecognition();
+  rec.lang = 'vi-VN';
+  rec.continuous = true;
+  rec.interimResults = true;
+  rec.maxAlternatives = 3;
+
+  rec.onresult = (event) => {
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      const result = event.results[i];
+      const transcript = result[0].transcript.trim().toUpperCase();
+      if (transcript && transcript !== lastHeard) {
+        lastHeard = transcript;
+        handleHeard(transcript, result.isFinal);
+      }
+    }
+  };
+
+  rec.onerror = (e) => {
+    console.log('Speech error:', e.error);
+    if (e.error === 'not-allowed') {
+      heardEl.textContent = '❌ Chưa cấp quyền micro! Vui lòng cho phép.';
+    }
+  };
+
+  rec.onend = () => {
+    isListening = false;
+    micIndicator.classList.remove('listening');
+    // Tự khởi động lại khi đang chơi
+    if (gameState === 'playing') {
+      setTimeout(() => startListening(), 200);
+    }
+  };
+
+  rec.onstart = () => {
+    isListening = true;
+    micIndicator.classList.add('listening');
+  };
+
+  return rec;
+}
+
+function startListening() {
+  if (!recognition) recognition = initRecognition();
+  if (!recognition || isListening) return;
+  try {
+    recognition.start();
+  } catch (e) {
+    // Đã chạy rồi
+  }
+}
+
+function stopListening() {
+  if (recognition && isListening) {
+    try { recognition.stop(); } catch(e){}
+  }
+}
+
+// ============ CHUẨN HÓA TIẾNG VIỆT ============
+function normalize(s) {
+  return s
+    .toUpperCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // bỏ dấu
+    .replace(/đ/g, 'D')
+    .replace(/[^A-Z0-9 ]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+// ============ XỬ LÝ TỪ NGHE ĐƯỢC ============
+function handleHeard(transcript, isFinal) {
+  if (gameState !== 'playing' || !currentWord) return;
+  
+  heardEl.textContent = '👂 Nghe: "' + transcript + '"';
+  heardEl.classList.remove('matched');
+
+  const heard = normalize(transcript);
+  const target = normalize(currentWord);
+  
+  if (!heard) return;
+  
+  // Kiểm tra khớp: chứa từ khóa chính
+  const targetWords = target.split(' ');
+  const heardWords = heard.split(' ');
+  
+  // Khớp nếu toàn bộ từ của target đều có trong câu nghe được
+  const isMatch = targetWords.every(tw => heardWords.includes(tw)) ||
+                  heard === target ||
+                  heard.includes(target) ||
+                  target.includes(heard);
+  
+  if (isMatch) {
+    handleCorrect();
+  }
+}
+
+// ============ XỬ LÝ ĐÚNG ============
+function handleCorrect() {
+  if (gameState !== 'playing') return;
+  
+  wordBox.className = 'correct';
+  wordBox.textContent = '✓ ' + currentWord;
+  heardEl.classList.add('matched');
+  heardEl.textContent = '✅ CHÍNH XÁC! Nón lá nhảy lên!';
+  
+  // Nhảy
+  if (player.y >= GROUND_Y - player.h - 1) {
+    player.vy = JUMP_FORCE;
+  }
+  
+  // Hiệu ứng
+  for (let i = 0; i < 20; i++) {
+    particles.push({
+      x: player.x + player.w/2,
+      y: player.y + player.h/2,
+      vx: (Math.random() - 0.5) * 10,
+      vy: (Math.random() - 0.5) * 10 - 3,
+      life: 45,
+      color: ['#FFD700','#FFA500','#FF6B6B','#4ECDC4'][Math.floor(Math.random()*4)]
+    });
+  }
+  
+  score += 10;
+  scoreEl.textContent = '🏆 Điểm: ' + score;
+  
+  currentWord = ''; // tránh kích hoạt lặp
+  
+  setTimeout(() => {
+    if (gameState === 'playing') pickNewWord();
+  }, 1300);
+}
+
+// ============ GAME LOGIC ============
 function resetGame() {
   score = 0;
   speed = 6;
   frameCount = 0;
   obstacles = [];
   particles = [];
-  nhay = false;
-  readyToJump = false;
   player.y = GROUND_Y - player.h;
   player.vy = 0;
   player.rotation = 0;
   scoreEl.textContent = '🏆 Điểm: 0';
+  lastHeard = '';
   pickNewWord();
 }
 
@@ -226,9 +385,8 @@ function pickNewWord() {
   currentWord = WORDS[Math.floor(Math.random() * WORDS.length)];
   wordBox.textContent = currentWord;
   wordBox.className = '';
-  wordInput.value = '';
-  wordInput.disabled = false;
-  wordInput.focus();
+  heardEl.textContent = '🎤 Hãy nói: "' + currentWord + '"';
+  heardEl.classList.remove('matched');
 }
 
 function spawnObstacle() {
@@ -244,13 +402,11 @@ function spawnObstacle() {
   });
 }
 
-// Vẽ nón lá
 function drawNonLa(x, y, w, h, rotation) {
   ctx.save();
   ctx.translate(x + w/2, y + h/2);
   ctx.rotate(rotation);
   
-  // Vành nón (đáy)
   ctx.beginPath();
   ctx.ellipse(0, h*0.35, w*0.5, h*0.12, 0, 0, Math.PI * 2);
   ctx.fillStyle = '#D2A679';
@@ -259,7 +415,6 @@ function drawNonLa(x, y, w, h, rotation) {
   ctx.lineWidth = 2;
   ctx.stroke();
   
-  // Thân nón (tam giác)
   ctx.beginPath();
   ctx.moveTo(0, -h*0.45);
   ctx.quadraticCurveTo(-w*0.55, h*0.15, -w*0.5, h*0.35);
@@ -267,7 +422,6 @@ function drawNonLa(x, y, w, h, rotation) {
   ctx.quadraticCurveTo(w*0.55, h*0.15, 0, -h*0.45);
   ctx.closePath();
   
-  // Gradient cho nón
   const grad = ctx.createLinearGradient(-w/2, -h/2, w/2, h/2);
   grad.addColorStop(0, '#F5DEB3');
   grad.addColorStop(0.5, '#E8C99B');
@@ -278,7 +432,6 @@ function drawNonLa(x, y, w, h, rotation) {
   ctx.lineWidth = 2.5;
   ctx.stroke();
   
-  // Các đường gân nón
   ctx.strokeStyle = 'rgba(139, 69, 19, 0.4)';
   ctx.lineWidth = 1;
   for (let i = -2; i <= 2; i++) {
@@ -288,13 +441,11 @@ function drawNonLa(x, y, w, h, rotation) {
     ctx.stroke();
   }
   
-  // Đỉnh nón
   ctx.beginPath();
   ctx.arc(0, -h*0.45, 3, 0, Math.PI*2);
   ctx.fillStyle = '#8B4513';
   ctx.fill();
   
-  // Họa tiết hoa văn
   ctx.beginPath();
   ctx.arc(0, -h*0.1, w*0.12, 0, Math.PI*2);
   ctx.strokeStyle = 'rgba(139, 69, 19, 0.5)';
@@ -307,7 +458,6 @@ function drawNonLa(x, y, w, h, rotation) {
 function drawObstacle(o) {
   ctx.save();
   if (o.type === 'rock') {
-    // Đá
     ctx.beginPath();
     ctx.moveTo(o.x, o.y);
     ctx.lineTo(o.x + o.w*0.2, o.y - o.h);
@@ -324,7 +474,6 @@ function drawObstacle(o) {
     ctx.lineWidth = 2;
     ctx.stroke();
   } else if (o.type === 'bush') {
-    // Bụi cây
     const cx = o.x + o.w/2;
     const cy = o.y - o.h*0.5;
     ctx.fillStyle = '#228B22';
@@ -338,7 +487,6 @@ function drawObstacle(o) {
     ctx.arc(cx, cy + 8, o.w*0.4, 0, Math.PI*2);
     ctx.fill();
   } else {
-    // Tre
     ctx.fillStyle = '#7CFC00';
     ctx.fillRect(o.x + o.w*0.3, o.y - o.h, o.w*0.4, o.h);
     ctx.strokeStyle = '#228B22';
@@ -349,7 +497,6 @@ function drawObstacle(o) {
       ctx.lineTo(o.x + o.w*0.7, o.y - o.h + i*o.h/4);
       ctx.stroke();
     }
-    // Lá tre
     ctx.fillStyle = '#32CD32';
     ctx.beginPath();
     ctx.ellipse(o.x + o.w*0.15, o.y - o.h*0.9, 15, 6, -0.5, 0, Math.PI*2);
@@ -372,17 +519,14 @@ function drawCloud(c) {
 }
 
 function drawBackground() {
-  // Trời
   const skyGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
   skyGrad.addColorStop(0, '#87CEEB');
   skyGrad.addColorStop(1, '#FFF8DC');
   ctx.fillStyle = skyGrad;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   
-  // Mây
   clouds.forEach(drawCloud);
   
-  // Mặt trời
   ctx.beginPath();
   ctx.arc(680, 60, 35, 0, Math.PI*2);
   const sunGrad = ctx.createRadialGradient(680, 60, 10, 680, 60, 40);
@@ -391,7 +535,6 @@ function drawBackground() {
   ctx.fillStyle = sunGrad;
   ctx.fill();
   
-  // Đồng lúa xa xa
   ctx.fillStyle = '#90EE90';
   for (let i = 0; i < 20; i++) {
     const x = (i * 45 + frameCount * 0.5) % (canvas.width + 45) - 45;
@@ -400,14 +543,12 @@ function drawBackground() {
     ctx.fill();
   }
   
-  // Mặt đất
   const groundGrad = ctx.createLinearGradient(0, GROUND_Y, 0, canvas.height);
   groundGrad.addColorStop(0, '#DEB887');
   groundGrad.addColorStop(1, '#8B7355');
   ctx.fillStyle = groundGrad;
   ctx.fillRect(0, GROUND_Y, canvas.width, canvas.height - GROUND_Y);
   
-  // Đường kẻ
   ctx.strokeStyle = 'rgba(139, 69, 19, 0.3)';
   ctx.lineWidth = 2;
   for (let i = 0; i < 30; i++) {
@@ -418,7 +559,6 @@ function drawBackground() {
     ctx.stroke();
   }
   
-  // Cỏ
   ctx.strokeStyle = '#228B22';
   ctx.lineWidth = 2;
   for (let i = 0; i < 40; i++) {
@@ -431,12 +571,10 @@ function drawBackground() {
 }
 
 function checkCollision() {
-  // Hộp va chạm của nón lá (thu gọn)
   const px = player.x + 10;
   const py = player.y + 15;
   const pw = player.w - 20;
   const ph = player.h - 20;
-  
   for (let o of obstacles) {
     if (px + pw > o.x && px < o.x + o.w &&
         py + ph > o.y - o.h && py < o.y) {
@@ -448,7 +586,7 @@ function checkCollision() {
 
 function gameOver() {
   gameState = 'over';
-  wordInput.disabled = true;
+  stopListening();
   if (score > best) {
     best = score;
     localStorage.setItem('nonla_best', best);
@@ -458,7 +596,7 @@ function gameOver() {
     <h2>💥 KẾT THÚC!</h2>
     <p>Điểm của bạn: <b style="color:#FFD700;font-size:28px">${score}</b><br>
     ${score >= best && score > 0 ? '🎉 KỶ LỤC MỚI!' : 'Kỷ lục: ' + best}<br><br>
-    <small>Gõ đúng từ để nhảy qua chướng ngại vật nhé!</small></p>
+    <small>Hãy nói to và rõ từ hiển thị nhé!</small></p>
     <button id="restartBtn">CHƠI LẠI</button>
   `;
   overlay.classList.remove('hidden');
@@ -469,57 +607,17 @@ function startGame() {
   resetGame();
   gameState = 'playing';
   overlay.classList.add('hidden');
-  wordInput.disabled = false;
-  wordInput.focus();
+  startListening();
 }
 
-// Xử lý nhập từ
-wordInput.addEventListener('input', (e) => {
-  if (gameState !== 'playing') return;
-  const val = e.target.value.toUpperCase().trim();
-  if (val === currentWord) {
-    // Đúng từ!
-    wordBox.className = 'correct';
-    wordBox.textContent = '✓ ' + currentWord;
-    readyToJump = true;
-    // Tạo hiệu ứng
-    for (let i = 0; i < 15; i++) {
-      particles.push({
-        x: player.x + player.w/2,
-        y: player.y + player.h/2,
-        vx: (Math.random() - 0.5) * 8,
-        vy: (Math.random() - 0.5) * 8 - 2,
-        life: 40,
-        color: '#FFD700'
-      });
-    }
-    // Thực hiện nhảy
-    if (player.y >= GROUND_Y - player.h - 1) {
-      player.vy = JUMP_FORCE;
-    }
-    score += 10;
-    scoreEl.textContent = '🏆 Điểm: ' + score;
-    wordInput.value = '';
-    wordInput.disabled = true;
-    // Chọn từ mới sau 1.2s
-    setTimeout(() => {
-      if (gameState === 'playing') pickNewWord();
-    }, 1200);
-  } else if (val.length > currentWord.length + 2) {
-    // Gõ sai quá nhiều -> xóa
-    e.target.value = '';
+startBtn.onclick = () => {
+  if (!SpeechRecognition) {
+    supportWarn.textContent = '⚠️ Trình duyệt không hỗ trợ micro! Dùng Chrome/Edge.';
+    return;
   }
-});
+  startGame();
+};
 
-wordInput.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') {
-    e.preventDefault();
-  }
-});
-
-startBtn.onclick = startGame;
-
-// Khởi tạo mây
 for (let i = 0; i < 5; i++) {
   clouds.push({
     x: Math.random() * canvas.width,
@@ -528,11 +626,9 @@ for (let i = 0; i < 5; i++) {
   });
 }
 
-// Game loop
 function loop() {
   frameCount++;
   
-  // Cập nhật mây
   clouds.forEach(c => {
     c.x -= c.speed;
     if (c.x < -80) {
@@ -542,11 +638,9 @@ function loop() {
   });
   
   if (gameState === 'playing') {
-    // Di chuyển đất
     groundOffset -= speed;
     if (groundOffset <= -30) groundOffset = 0;
     
-    // Vật lý nhảy
     player.vy += GRAVITY;
     player.y += player.vy;
     
@@ -558,37 +652,25 @@ function loop() {
       player.rotation += 0.08;
     }
     
-    // Sinh chướng ngại vật
     if (frameCount % Math.max(50, 90 - Math.floor(score/5)) === 0) {
       spawnObstacle();
     }
     
-    // Cập nhật chướng ngại vật
     for (let i = obstacles.length - 1; i >= 0; i--) {
       const o = obstacles[i];
       o.x -= speed;
-      
-      // Tính điểm khi vượt qua
       if (!o.scored && o.x + o.w < player.x) {
         o.scored = true;
         score += 1;
         scoreEl.textContent = '🏆 Điểm: ' + score;
-        // Tăng tốc độ
         if (score % 20 === 0) speed += 0.8;
       }
-      
-      if (o.x + o.w < 0) {
-        obstacles.splice(i, 1);
-      }
+      if (o.x + o.w < 0) obstacles.splice(i, 1);
     }
     
-    // Va chạm
-    if (checkCollision()) {
-      gameOver();
-    }
+    if (checkCollision()) gameOver();
   }
   
-  // Cập nhật particles
   for (let i = particles.length - 1; i >= 0; i--) {
     const p = particles[i];
     p.x += p.vx;
@@ -598,12 +680,10 @@ function loop() {
     if (p.life <= 0) particles.splice(i, 1);
   }
   
-  // ===== VẼ =====
   drawBackground();
   
-  // Vẽ particles
   particles.forEach(p => {
-    ctx.globalAlpha = p.life / 40;
+    ctx.globalAlpha = p.life / 45;
     ctx.fillStyle = p.color;
     ctx.beginPath();
     ctx.arc(p.x, p.y, 3, 0, Math.PI*2);
@@ -611,10 +691,8 @@ function loop() {
   });
   ctx.globalAlpha = 1;
   
-  // Vẽ chướng ngại vật
   obstacles.forEach(drawObstacle);
   
-  // Vẽ bóng nón lá
   if (player.y < GROUND_Y - player.h) {
     ctx.save();
     ctx.globalAlpha = 0.3;
@@ -625,7 +703,6 @@ function loop() {
     ctx.restore();
   }
   
-  // Vẽ nón lá
   drawNonLa(player.x, player.y, player.w, player.h, player.rotation);
   
   requestAnimationFrame(loop);
